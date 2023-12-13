@@ -812,7 +812,13 @@ class TelegramBaseClient(abc.ABC):
         #
         # If one were to do that, Telegram would reset the connection
         # with no further clues.
-        sender = MTProtoSender(None, loggers=self._log)
+        sender = MTProtoSender(None,
+                               loggers=self._log,
+                               retries=self._connection_retries,
+                               delay=self._retry_delay,
+                               auto_reconnect=self._auto_reconnect,
+                               connect_timeout=self._timeout,
+                               )
         await sender.connect(self._connection(
             dc.ip_address,
             dc.port,

@@ -581,18 +581,7 @@ class DownloadMethods:
                 return f.getvalue()
         except _CdnRedirect as e:
           self._log[__name__].info('FileCdnRedirect to CDN data center %s', e.cdn_redirect.dc_id)
-          return await self._download_file(
-              input_location=input_location,
-              file=file,
-              part_size_kb=part_size_kb,
-              file_size=file_size,
-              progress_callback=progress_callback,
-              dc_id=e.cdn_redirect.dc_id,
-              key=e.cdn_redirect.encryption_key,
-              iv=e.cdn_redirect.encryption_iv,
-              msg_data=msg_data,
-              cdn_redirect=e.cdn_redirect
-          )
+          raise NotImplementedError('FileCdnRedirect to CDN data center %s', e.cdn_redirect.dc_id)
         finally:
             if isinstance(file, str) or in_memory:
                 f.close()

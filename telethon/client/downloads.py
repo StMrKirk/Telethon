@@ -54,7 +54,7 @@ class _DirectDownloadIter(RequestIter):
         self._exported = dc_id and self._client.session.dc_id != dc_id
         if not self._exported:
             # The used sender will also change if ``FileMigrateError`` occurs
-            self._sender = self.client._sender
+            self._sender = self._client._sender
         else:
             try:
                 self._sender = await self.client._borrow_exported_sender(dc_id)

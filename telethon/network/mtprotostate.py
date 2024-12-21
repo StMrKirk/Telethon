@@ -173,29 +173,29 @@ class MTProtoState:
             raise SecurityError(
                 "Received msg_key doesn't match with expected one")
 
-        reader = BinaryReader(body)
-        reader.read_long()  # remote_salt
-        if reader.read_long() != self.id:
-            raise SecurityError('Server replied with a wrong session ID (see FAQ for details)')
+        with BinaryReader(body) as reader:
+            reader.read_long()  # remote_salt
+            if reader.read_long() != self.id:
+                raise SecurityError('Server replied with a wrong session ID (see FAQ for details)')
 
-        remote_msg_id = reader.read_long()
+            remote_msg_id = reader.read_long()
 
-        if remote_msg_id % 2 != 1:
-            raise SecurityError('Server sent an even msg_id')
+            if remote_msg_id % 2 != 1:
+                raise SecurityError('Server sent an even msg_id')
 
-        # Only perform the (somewhat expensive) check of duplicate if we did receive a lower ID
-        if remote_msg_id <= self._highest_remote_id and remote_msg_id in self._recent_remote_ids:
-            self._log.warning('Server resent the older message %d, ignoring', remote_msg_id)
-            self._count_ignored()
-            return None
+            # Only perform the (somewhat expensive) check of duplicate if we did receive a lower ID
+            if remote_msg_id <= self._highest_remote_id and remote_msg_id in self._recent_remote_ids:
+                self._log.warning('Server resent the older message %d, ignoring', remote_msg_id)
+                self._count_ignored()
+                return None
 
-        remote_sequence = reader.read_int()
-        reader.read_int()  # msg_len for the inner object, padding ignored
+            remote_sequence = reader.read_int()
+            reader.read_int()  # msg_len for the inner object, padding ignored
 
-        # We could read msg_len bytes and use those in a new reader to read
-        # the next TLObject without including the padding, but since the
-        # reader isn't used for anything else after this, it's unnecessary.
-        obj = reader.tgread_object()
+            # We could read msg_len bytes and use those in a new reader to read
+            # the next TLObject without including the padding, but since the
+            # reader isn't used for anything else after this, it's unnecessary.
+            obj = reader.tgread_object()
 
         # "Certain client-to-server service messages containing data sent by the client to the
         # server (for example, msg_id of a recent client query) may, nonetheless, be processed
